@@ -14,7 +14,7 @@
         <developer>
             <id>iainporter</id>
             <name>Iain Porter</name>
-            <email>iain.porter@c24tech.com</email>
+            <email>changeant@gmail.com</email>
         </developer>
     </developers>
 
@@ -26,8 +26,6 @@
     </parent>
 
     <properties>
-        <project.build.modelDirectory>${project.basedir}/src/main/c24</project.build.modelDirectory>
-        <project.build.generateDirectory>${project.build.directory}/generated-sources</project.build.generateDirectory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
     </properties>
