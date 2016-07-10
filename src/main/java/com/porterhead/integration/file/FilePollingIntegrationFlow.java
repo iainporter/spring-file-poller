@@ -1,6 +1,6 @@
 package com.porterhead.integration.file;
 
-import com.porterhead.configuration.ApplicationConfiguration;
+import com.porterhead.integration.configuration.ApplicationConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;

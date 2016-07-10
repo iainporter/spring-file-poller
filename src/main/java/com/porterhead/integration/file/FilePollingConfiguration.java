@@ -3,7 +3,6 @@ package com.porterhead.integration.file;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 
 import java.io.File;
 
@@ -37,9 +36,8 @@ public class FilePollingConfiguration {
 
     private File makeDirectory(String path) {
         File file = new File(path);
-        boolean created = file.mkdirs();
+        file.mkdirs();
         return file;
     }
-
 
 }

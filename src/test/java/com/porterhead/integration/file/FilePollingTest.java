@@ -1,7 +1,7 @@
 package com.porterhead.integration.file;
 
 
-import com.porterhead.configuration.ApplicationConfiguration;
+import com.porterhead.integration.configuration.ApplicationConfiguration;
 import com.porterhead.integration.TestUtils;
 import org.junit.After;
 import org.junit.ClassRule;
@@ -14,11 +14,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.dsl.channel.MessageChannels;
 import org.springframework.integration.handler.LoggingHandler;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -56,27 +54,25 @@ public class FilePollingTest  {
     @Qualifier("inboundFailedDirectory")
     public File inboundFailedDirectory;
 
+    @Autowired
+    @Qualifier("inboundOutDirectory")
+    public File inboundOutDirectory;
+
     @After
     public void tearDown() throws Exception {
         TestUtils.deleteRecursive(inboundReadDirectory);
         TestUtils.deleteRecursive(inboundProcessedDirectory);
         TestUtils.deleteRecursive(inboundFailedDirectory);
+        TestUtils.deleteRecursive(inboundOutDirectory);
     }
 
     @Autowired
     @Qualifier(ApplicationConfiguration.INBOUND_CHANNEL)
     public DirectChannel filePollingChannel;
 
-    @Configuration
     @EnableAutoConfiguration
-    @ComponentScan(basePackages = "com.porterhead.integration.file")
+    @ComponentScan(basePackages = "com.porterhead.integration.file, com.porterhead.integration.configuration")
     public static class TestConfig {
-
-        @Bean(name = ApplicationConfiguration.INBOUND_CHANNEL)
-        public MessageChannel inboundFilePollingChannel() {
-            return MessageChannels.direct().get();
-
-        }
 
         @Bean
         public File inboundReadDirectory() throws IOException {
@@ -92,6 +88,12 @@ public class FilePollingTest  {
         public File inboundFailedDirectory() throws IOException {
             return tempFolder.newFolder("failed");
         }
+
+        @Bean
+        public File inboundOutDirectory() throws IOException {
+            return tempFolder.newFolder("out");
+        }
+
 
         @Bean
         public IntegrationFlow loggingFlow(@Qualifier(ApplicationConfiguration.INBOUND_CHANNEL) MessageChannel inChannel) {
