@@ -8,6 +8,6 @@ It can be used as an entry point to a bigger application.
 
 The tests show best practices for testing such a component.
 
-
+See blog post: http://porterhead.blogspot.co.uk/2016/07/file-polling-using-spring-integration.html
 
 
