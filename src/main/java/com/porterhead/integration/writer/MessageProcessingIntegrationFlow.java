@@ -8,12 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.file.DefaultFileNameGenerator;
 import org.springframework.integration.file.FileNameGenerator;
 import org.springframework.integration.file.FileWritingMessageHandler;
 import org.springframework.integration.handler.LoggingHandler;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +26,13 @@ public class MessageProcessingIntegrationFlow {
     @Autowired
     public File inboundOutDirectory;
 
-    DateTimeFormatter dateTimeFormatter;
 
+    /**
+     * Reverse the contents of the string and write it out using a filename generator to name the file
+     *
+     * @param fileWritingMessageHandler
+     * @return
+     */
     @Bean
     public IntegrationFlow writeToFile(@Qualifier("fileWritingMessageHandler") MessageHandler fileWritingMessageHandler) {
         return IntegrationFlows.from(ApplicationConfiguration.INBOUND_CHANNEL)
