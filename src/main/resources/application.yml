@@ -1,0 +1,26 @@
+inbound:
+    failed:
+        path: inbound/failed
+    file:
+        poller:
+            fixed:
+                delay: 1000
+            max:
+                messages:
+                    per:
+                        poll: 5
+            thread:
+                pool:
+                    size: 4
+    filename:
+        regex: ([^\s]+(\.(?i)(txt))$)
+    out:
+        path: inbound/out
+    processed:
+        path: inbound/processed
+    read:
+        path: inbound/read
+out:
+    filename:
+        dateFormat: yyyy_MM_dd_HH_mm_ss_SSS
+        suffix: .txt
