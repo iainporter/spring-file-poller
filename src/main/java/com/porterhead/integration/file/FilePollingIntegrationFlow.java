@@ -12,9 +12,11 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.integration.core.MessageSource;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.dsl.core.Pollers;
-import org.springframework.integration.dsl.support.Transformers;
+import org.springframework.integration.dsl.Pollers;
+import org.springframework.integration.file.DirectoryScanner;
 import org.springframework.integration.file.FileReadingMessageSource;
+import org.springframework.integration.file.RecursiveDirectoryScanner;
+import org.springframework.integration.file.dsl.Files;
 import org.springframework.integration.file.filters.AcceptOnceFileListFilter;
 import org.springframework.integration.file.filters.CompositeFileListFilter;
 import org.springframework.integration.file.filters.RegexPatternFileListFilter;
@@ -57,7 +59,7 @@ class FilePollingIntegrationFlow {
                         .maxMessagesPerPoll(maxMessagesPerPoll)
                         .transactionSynchronizationFactory(transactionSynchronizationFactory())
                         .transactional(transactionManager())))
-                .transform(Transformers.fileToString())
+                .transform(Files.toStringTransformer())
                 .channel(ApplicationConfiguration.INBOUND_CHANNEL)
                 .get();
     }
@@ -88,16 +90,23 @@ class FilePollingIntegrationFlow {
     }
 
     @Bean
-    public FileReadingMessageSource fileReadingMessageSource(@Value("${inbound.filename.regex}") String regex) {
+    public FileReadingMessageSource fileReadingMessageSource(DirectoryScanner directoryScanner) {
         FileReadingMessageSource source = new FileReadingMessageSource();
         source.setDirectory(this.inboundReadDirectory);
+        source.setScanner(directoryScanner);
         source.setAutoCreateDirectory(true);
+        return source;
+    }
+
+    @Bean
+    public DirectoryScanner directoryScanner(@Value("${inbound.filename.regex}") String regex) {
+        DirectoryScanner scanner = new RecursiveDirectoryScanner();
         CompositeFileListFilter<File> filter = new CompositeFileListFilter<>(
-                Arrays.asList(new AcceptOnceFileListFilter<File>(),
+                Arrays.asList(new AcceptOnceFileListFilter<>(),
                         new RegexPatternFileListFilter(regex))
         );
-        source.setFilter(filter);
-        return source;
+        scanner.setFilter(filter);
+        return scanner;
     }
 
 
