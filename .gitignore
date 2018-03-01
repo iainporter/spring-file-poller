@@ -1,4 +1,5 @@
 target/
+inbound
 !.mvn/wrapper/maven-wrapper.jar
 .flattened-pom.xml
 
