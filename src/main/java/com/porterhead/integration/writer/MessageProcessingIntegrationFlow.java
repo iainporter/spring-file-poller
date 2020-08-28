@@ -38,7 +38,7 @@ public class MessageProcessingIntegrationFlow {
         return IntegrationFlows.from(ApplicationConfiguration.INBOUND_CHANNEL)
                 .transform(m -> new StringBuilder((String)m).reverse().toString())
                 .handle(fileWritingMessageHandler)
-                .handle(loggingHandler())
+                .log(LoggingHandler.Level.INFO)
                 .get();
     }
 
@@ -49,13 +49,6 @@ public class MessageProcessingIntegrationFlow {
         handler.setAutoCreateDirectory(true);
         handler.setFileNameGenerator(fileNameGenerator);
         return handler;
-    }
-
-    @Bean
-    public MessageHandler loggingHandler() {
-        LoggingHandler logger = new LoggingHandler("INFO");
-        logger.setShouldLogFullMessage(true);
-        return logger;
     }
 
     @Bean(name = OUTBOUND_FILENAME_GENERATOR)
