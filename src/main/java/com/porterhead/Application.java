@@ -13,7 +13,6 @@ public class Application {
 
     public static void main(String[] args) {
         new SpringApplicationBuilder()
-                .web(false)
                 .sources(Application.class)
                 .run(args);
     }

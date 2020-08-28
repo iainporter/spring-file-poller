@@ -1,8 +1,8 @@
 package com.porterhead.integration.file;
 
 
-import com.porterhead.integration.configuration.ApplicationConfiguration;
 import com.porterhead.integration.TestUtils;
+import com.porterhead.integration.configuration.ApplicationConfiguration;
 import org.junit.After;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -10,32 +10,24 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.integration.handler.LoggingHandler;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.support.ChannelInterceptorAdapter;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = FilePollingTest.TestConfig.class)
+@SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class FilePollingTest  {
 
@@ -69,46 +61,6 @@ public class FilePollingTest  {
     @Autowired
     @Qualifier(ApplicationConfiguration.INBOUND_CHANNEL)
     public DirectChannel filePollingChannel;
-
-    @EnableAutoConfiguration
-    @ComponentScan(basePackages = "com.porterhead.integration.file, com.porterhead.integration.configuration")
-    public static class TestConfig {
-
-        @Bean
-        public File inboundReadDirectory() throws IOException {
-            return tempFolder.newFolder("in");
-        }
-
-        @Bean
-        public File inboundProcessedDirectory() throws IOException {
-            return tempFolder.newFolder("processed");
-        }
-
-        @Bean
-        public File inboundFailedDirectory() throws IOException {
-            return tempFolder.newFolder("failed");
-        }
-
-        @Bean
-        public File inboundOutDirectory() throws IOException {
-            return tempFolder.newFolder("out");
-        }
-
-
-        @Bean
-        public IntegrationFlow loggingFlow(@Qualifier(ApplicationConfiguration.INBOUND_CHANNEL) MessageChannel inChannel) {
-            return IntegrationFlows.from(inChannel)
-                    .handle(this.loggingHandler())
-                    .get();
-        }
-
-        @Bean
-        public MessageHandler loggingHandler() {
-            LoggingHandler logger = new LoggingHandler("INFO");
-            logger.setShouldLogFullMessage(true);
-            return logger;
-        }
-    }
 
     @Test
     public void pollFindsValidFile() throws Exception {
@@ -146,11 +98,9 @@ public class FilePollingTest  {
             }
         });
         FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
-        assertThat(stopLatch.await(5, TimeUnit.SECONDS), is(true));
+        TestUtils.assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
         TestUtils.assertThatDirectoryIsEmpty(inboundReadDirectory);
         TestUtils.assertThatDirectoryIsEmpty(inboundFailedDirectory);
-        TestUtils.assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
-        //put file with same name in directory
         FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
         TestUtils.assertThatDirectoryIsEmpty(inboundFailedDirectory);
         TestUtils.assertThatDirectoryHasFiles(inboundReadDirectory, 1);
