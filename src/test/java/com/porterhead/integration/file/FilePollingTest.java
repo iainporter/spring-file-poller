@@ -94,6 +94,7 @@ public class FilePollingTest  {
         assertThatDirectoryIsEmpty(inboundReadDirectory);
         assertThatDirectoryIsEmpty(inboundFailedDirectory);
         copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
+        Thread.sleep(2000);
         assertThatDirectoryIsEmpty(inboundFailedDirectory);
         assertThatDirectoryHasFiles(inboundReadDirectory, 1);
         assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
