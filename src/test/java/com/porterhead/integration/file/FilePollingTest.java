@@ -14,7 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.messaging.support.ChannelInterceptorAdapter;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.FileCopyUtils;
@@ -65,11 +65,10 @@ public class FilePollingTest  {
     @Test
     public void pollFindsValidFile() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
-        filePollingChannel.addInterceptor(new ChannelInterceptorAdapter() {
+        filePollingChannel.addInterceptor(new ChannelInterceptor() {
             @Override
             public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
                 latch.countDown();
-                super.postSend(message, channel, sent);
             }
         });
         FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
@@ -90,11 +89,10 @@ public class FilePollingTest  {
     @Test
     public void pollIgnoresFileAlreadySeen() throws Exception {
         final CountDownLatch stopLatch = new CountDownLatch(1);
-        filePollingChannel.addInterceptor(new ChannelInterceptorAdapter() {
+        filePollingChannel.addInterceptor(new ChannelInterceptor() {
             @Override
             public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
                 stopLatch.countDown();
-                super.postSend(message, channel, sent);
             }
         });
         FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
@@ -110,7 +108,7 @@ public class FilePollingTest  {
     @Test
     public void rollbackMovesFileToFailed() throws Exception {
         final CountDownLatch stopLatch = new CountDownLatch(1);
-        filePollingChannel.addInterceptor(new ChannelInterceptorAdapter() {
+        filePollingChannel.addInterceptor(new ChannelInterceptor() {
             @Override
             public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
                 stopLatch.countDown();
