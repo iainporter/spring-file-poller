@@ -79,6 +79,7 @@ public class FilePollingTest  {
     @Test
     public void pollIgnoresInvalidFile() throws Exception {
         copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME + ".tmp" ));
+        Thread.sleep(2000); //enough time to ensure the file has been read and ignored before the test finishes
         assertThatDirectoryIsEmpty(inboundProcessedDirectory);
         assertThatDirectoryIsEmpty(inboundFailedDirectory);
         assertThatDirectoryIsEmpty(inboundOutDirectory);
