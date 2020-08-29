@@ -8,7 +8,7 @@ It can be used as an entry point to a bigger application.
 
 The tests show best practices for testing such a component.
 
-See blog post: [File Poller With Spring Integration DSL] (https://medium.com/@changeant/file-poller-with-spring-integration-dsl-ecb7bc996ba5)
+See blog post: [File Poller With Spring Integration DSL](https://medium.com/@changeant/file-poller-with-spring-integration-dsl-ecb7bc996ba5)
 
 To build it:
 
