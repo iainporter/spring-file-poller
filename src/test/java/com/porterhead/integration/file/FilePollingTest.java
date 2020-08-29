@@ -4,6 +4,7 @@ package com.porterhead.integration.file;
 import com.porterhead.integration.TestUtils;
 import com.porterhead.integration.configuration.ApplicationConfiguration;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,13 +89,22 @@ public class FilePollingTest  {
 
     @Test
     public void pollIgnoresFileAlreadySeen() throws Exception {
+        final CountDownLatch stopLatch = new CountDownLatch(1);
+        filePollingChannel.addInterceptor(new ChannelInterceptor() {
+            @Override
+            public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
+                stopLatch.countDown();
+            }
+        });
         copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
+        //wait for stopLatch before asserting
+        assertThat(stopLatch.await(5, TimeUnit.SECONDS), is(true));
         assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
         assertThatDirectoryHasFiles(inboundOutDirectory, 1);
         assertThatDirectoryIsEmpty(inboundReadDirectory);
         assertThatDirectoryIsEmpty(inboundFailedDirectory);
         copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
-        Thread.sleep(2000);
+        Thread.sleep(2000); //wait longer than the polling period
         assertThatDirectoryIsEmpty(inboundFailedDirectory);
         assertThatDirectoryHasFiles(inboundReadDirectory, 1);
         assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
