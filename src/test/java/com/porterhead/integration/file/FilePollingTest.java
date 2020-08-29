@@ -17,14 +17,16 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.FileCopyUtils;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import static com.porterhead.integration.TestUtils.assertThatDirectoryHasFiles;
+import static com.porterhead.integration.TestUtils.assertThatDirectoryIsEmpty;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.springframework.util.FileCopyUtils.copy;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
@@ -71,38 +73,31 @@ public class FilePollingTest  {
                 latch.countDown();
             }
         });
-        FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
+        copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
         assertThat(latch.await(5, TimeUnit.SECONDS), is(true));
-        TestUtils.assertThatDirectoryIsEmpty(inboundReadDirectory);
-        TestUtils.assertThatDirectoryIsEmpty(inboundFailedDirectory);
-        TestUtils.assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
+        assertThatDirectoryIsEmpty(inboundReadDirectory);
+        assertThatDirectoryIsEmpty(inboundFailedDirectory);
+        assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
     }
 
     @Test
     public void pollIgnoresInvalidFile() throws Exception {
-        FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME + ".tmp" ));
-        TestUtils.assertThatDirectoryIsEmpty(inboundProcessedDirectory);
-        TestUtils.assertThatDirectoryIsEmpty(inboundFailedDirectory);
-        TestUtils.assertThatDirectoryHasFiles(inboundReadDirectory, 1);
+        copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME + ".tmp" ));
+        assertThatDirectoryIsEmpty(inboundProcessedDirectory);
+        assertThatDirectoryIsEmpty(inboundFailedDirectory);
+        assertThatDirectoryHasFiles(inboundReadDirectory, 1);
     }
 
     @Test
     public void pollIgnoresFileAlreadySeen() throws Exception {
-        final CountDownLatch stopLatch = new CountDownLatch(1);
-        filePollingChannel.addInterceptor(new ChannelInterceptor() {
-            @Override
-            public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
-                stopLatch.countDown();
-            }
-        });
-        FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
-        TestUtils.assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
-        TestUtils.assertThatDirectoryIsEmpty(inboundReadDirectory);
-        TestUtils.assertThatDirectoryIsEmpty(inboundFailedDirectory);
-        FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
-        TestUtils.assertThatDirectoryIsEmpty(inboundFailedDirectory);
-        TestUtils.assertThatDirectoryHasFiles(inboundReadDirectory, 1);
-        TestUtils.assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
+        copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
+        assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
+        assertThatDirectoryIsEmpty(inboundReadDirectory);
+        assertThatDirectoryIsEmpty(inboundFailedDirectory);
+        copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
+        assertThatDirectoryIsEmpty(inboundFailedDirectory);
+        assertThatDirectoryHasFiles(inboundReadDirectory, 1);
+        assertThatDirectoryHasFiles(inboundProcessedDirectory, 1);
     }
 
     @Test
@@ -115,11 +110,11 @@ public class FilePollingTest  {
                 throw new RuntimeException("Forcing an Exception to trigger rollback");
             }
         });
-        FileCopyUtils.copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
+        copy(TestUtils.locateClasspathResource(TestUtils.FILE_FIXTURE_PATH), new File(inboundReadDirectory, TestUtils.FILE_FIXTURE_NAME ));
         assertThat(stopLatch.await(5, TimeUnit.SECONDS), is(true));
-        TestUtils.assertThatDirectoryIsEmpty(inboundReadDirectory);
-        TestUtils.assertThatDirectoryIsEmpty(inboundProcessedDirectory);
-        TestUtils.assertThatDirectoryHasFiles(inboundFailedDirectory, 1);
+        assertThatDirectoryIsEmpty(inboundReadDirectory);
+        assertThatDirectoryIsEmpty(inboundProcessedDirectory);
+        assertThatDirectoryHasFiles(inboundFailedDirectory, 1);
     }
 
 }
