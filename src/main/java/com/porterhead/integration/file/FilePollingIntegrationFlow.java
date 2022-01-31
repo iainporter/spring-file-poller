@@ -58,7 +58,7 @@ class FilePollingIntegrationFlow {
                         .taskExecutor(taskExecutor)
                         .maxMessagesPerPoll(maxMessagesPerPoll)
                         .transactionSynchronizationFactory(transactionSynchronizationFactory())
-                        .transactional(transactionManager())))
+                        .transactional(new PseudoTransactionManager())))
                 .transform(Files.toStringTransformer())
                 .channel(ApplicationConfiguration.INBOUND_CHANNEL)
                 .get();
@@ -71,10 +71,6 @@ class FilePollingIntegrationFlow {
         return taskExecutor;
     }
 
-    @Bean
-    PseudoTransactionManager transactionManager() {
-        return new PseudoTransactionManager();
-    }
 
     @Bean
     TransactionSynchronizationFactory transactionSynchronizationFactory() {
