@@ -4,7 +4,6 @@ package com.porterhead.integration.file;
 import com.porterhead.integration.TestUtils;
 import com.porterhead.integration.configuration.ApplicationConfiguration;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
