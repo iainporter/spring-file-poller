@@ -6,7 +6,7 @@ On finding a file it is transformed to a String and passed to a message handling
 
 The EIP Flow
 
-![EIP diagram](https://github.com/iainporter/spring-file-poller/blob/master/images/File_Poller.png?raw=true)
+![EIP diagram](images/File_Poller.png?raw=true)
 
 It can be used as an entry point to a bigger application.
 
